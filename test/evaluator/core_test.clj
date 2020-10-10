@@ -7,7 +7,9 @@
   (testing "With numbers only"
     (is (= 4 (evaluate {} '(* 2 (+ 1 1))))))
   (testing "With variables"
-    (is (= 100 (evaluate {:x 10} '(* x x))))))
+    (is (= 100 (evaluate {:x 10} '(* x x)))))
+  (testing "With Pow"
+   (is (= 25.0 (evaluate {:x 10} '(Math/pow (- x 5) 2))))))
 
 (deftest optimize-test
   (testing "With multiplier by zero and expression evaluations"
