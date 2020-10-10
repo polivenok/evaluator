@@ -11,9 +11,9 @@
 
 (deftest optimize-test
   (testing "With multiplier by zero and expression evaluations"
-    (is (= 10 (optimize '(+ 10 (* x 0)))))
-    (testing "With sub zero and variables"
-      (is (= '(+ x y) (optimize '(+ x (- y 0))))))))
+    (is (= 10 (optimize '(+ 10 (* x 0))))))
+  (testing "With sub zero and variables"
+    (is (= '(+ x y) (optimize '(+ x (- y 0)))))))
 
 (deftest ->javascript-test
   (testing "Simple expression"
