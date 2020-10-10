@@ -22,9 +22,10 @@
   (let [b-vec (reduce into [] (to-map-with-symbol-keys map))]
     (eval `(let ~b-vec ~exp))))
 
-(defn test-math-expression
+(defn math-expression?
   [exp]
-  (and (seq? exp) (contains? #{'+ '* '/ '-} (first exp))))
+  (and (seq? exp)
+       (contains? #{'+ '* '/ '-} (first exp))))
 
 (defn apply-rules
   "Simplifies the expression using arithmetic rules:
@@ -52,7 +53,7 @@
     (+ 3 2) => 5
     (+ x y) => (+ x y)"
   [exp]
-  (if (test-math-expression exp)
+  (if (math-expression? exp)
     (let [[op first second] exp]
       (if (or (symbol? first) (symbol? second)) exp
                                                 (eval exp)))
@@ -65,7 +66,7 @@
   "
   `(do
      ~@(postwalk (fn [block]
-                   (if (test-math-expression block)
+                   (if (math-expression? block)
                      (-> block
                          apply-rules
                          eval-numeric)
