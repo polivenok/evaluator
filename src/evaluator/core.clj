@@ -8,13 +8,6 @@
         (for [[k v] map]
           [(symbol k) v])))
 
-(defmacro m-evaluate
-  "Macros to evaluate simple arithmetic expressions.
-  (m-evaluate {:x 10} (* x x)) => 100"
-  [b-map & code]
-  (let [b-vec (reduce into [] (to-map-with-symbol-keys b-map))]
-    `(let ~b-vec ~@code)))
-
 (defn evaluate
   "Evaluates arithmetic expressions.
   (evaluate {:x 10} '(* x x)) => 100"
@@ -54,7 +47,7 @@
     (+ x y) => (+ x y)"
   [exp]
   (if (math-expression? exp)
-    (let [[op first second] exp]
+    (let [[_ first second] exp]
       (if (or (symbol? first) (symbol? second)) exp
                                                 (eval exp)))
     exp))
@@ -73,20 +66,27 @@
                      block))
                  code)))
 
+(defn to-infix-str
+  "Returns string in format: 'f' 'op' 's', e.g
+  '(to-infix-text + 3 2)=> \"3 + 2\""
+  [op f s]
+  (str f " " op " " s))
 
 (defn to-infix
   " Transforms simple arithmetic expression in prefix notation to infix notation.
     Returns string.
   '(+ 1 (* x x))) => \"1 + x * x\" "
   [code]
-  ;;TODO: not 'idiomatic', it would be better to replace usage of mutable data structure with different approach
-  (let [stack (java.util.Stack.)]
-    (doseq [item (reverse (flatten code))]
-      (if (or (= item '+) (= item '-) (= item '*) (= item '/))
-        (.push stack (str (.pop stack) " " item " " (.pop stack)))
-        (.push stack item)))
-    (.pop stack)))
-
+  (loop [stack []
+         r-code (reverse (flatten code))]
+    (if (not-empty r-code)
+      (let [item (first r-code)]
+        (if (or (= item '+) (= item '-) (= item '*) (= item '/))
+          (recur
+            (cons (to-infix-str item (first stack) (second stack)) (drop 2 stack))
+            (next r-code))
+          (recur (cons item stack) (next r-code))))
+      (first stack))))
 
 (defn ->javascript
   "Generates javascript function based on arithmetic expression with single local param 'x'"
